@@ -26,7 +26,7 @@ describe('App Component', () => {
     aiContentService.checkForNewContent.mockResolvedValue(null)
   })
 
-  it('renders AppShell and AppRoutes', () => {
+  it('renders without crashing', () => {
     render(<App />)
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
   })
@@ -40,8 +40,8 @@ describe('App Component', () => {
     const mockContent = [
       {
         id: '1',
-        title: 'Test Content',
-        description: 'Test Description',
+        title: 'New Content',
+        description: 'Test description',
         type: 'news',
         link: '/news'
       }
@@ -49,26 +49,29 @@ describe('App Component', () => {
     aiContentService.checkForNewContent.mockResolvedValue(mockContent)
 
     render(<App />)
-    await vi.waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith({
-        title: 'Test Content',
-        body: 'Test Description',
-        contentType: 'news',
-        link: '/news',
-        tag: 'ai-content-1'
-      })
+
+    // Wait for the useEffect to complete
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    expect(mockShowNotification).toHaveBeenCalledWith({
+      title: 'New Content',
+      body: 'Test description',
+      contentType: 'news',
+      link: '/news',
+      tag: 'ai-content-1'
     })
   })
 
-  it('handles AI content check errors gracefully', async () => {
+  it('handles errors when checking for new content', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     aiContentService.checkForNewContent.mockRejectedValue(new Error('Test error'))
 
     render(<App />)
-    await vi.waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('AI içerik kontrol hatası:', expect.any(Error))
-    })
 
+    // Wait for the useEffect to complete
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('AI içerik kontrol hatası:', expect.any(Error))
     consoleErrorSpy.mockRestore()
   })
 })

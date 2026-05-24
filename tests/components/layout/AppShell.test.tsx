@@ -13,8 +13,8 @@ vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
   return {
     ...actual,
-    NavLink: ({ children, to }: { children: React.ReactNode; to: string }) => (
-      <a href={to}>{children}</a>
+    NavLink: ({ children, to, ...props }: any) => (
+      <a href={to} {...props}>{children}</a>
     )
   }
 })
@@ -35,7 +35,7 @@ describe('AppShell Component', () => {
     useAppStore.mockReturnValue({
       notificationPermission: 'default',
       setNotificationPermission: mockSetNotificationPermission,
-      theme: 'dark'
+      theme: 'light'
     })
   })
 
@@ -51,11 +51,11 @@ describe('AppShell Component', () => {
     })
   })
 
-  it('handles notification click when permission is granted', async () => {
+  it('handles notification button click when permission is granted', async () => {
     useAppStore.mockReturnValueOnce({
       notificationPermission: 'granted',
       setNotificationPermission: mockSetNotificationPermission,
-      theme: 'dark'
+      theme: 'light'
     })
 
     render(
@@ -64,17 +64,15 @@ describe('AppShell Component', () => {
       </BrowserRouter>
     )
 
-    const notificationButton = screen.getAllByLabelText('Bildirimleri test et')[0]
+    const notificationButton = screen.getByLabelText('Bildirimleri test et')
     fireEvent.click(notificationButton)
 
-    await vi.waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith({
-        title: 'Test Bildirimi',
-        body: 'Bildirim sistemi çalışıyor',
-        tag: 'test-notification',
-        contentType: 'news',
-        link: '/news'
-      })
+    expect(mockShowNotification).toHaveBeenCalledWith({
+      title: 'Test Bildirimi',
+      body: 'Bildirim sistemi çalışıyor',
+      tag: 'test-notification',
+      contentType: 'news',
+      link: '/news'
     })
   })
 
@@ -87,23 +85,33 @@ describe('AppShell Component', () => {
       </BrowserRouter>
     )
 
-    const notificationButton = screen.getAllByLabelText('Bildirim izni iste')[0]
+    const notificationButton = screen.getByLabelText('Bildirim izni iste')
     fireEvent.click(notificationButton)
 
-    await vi.waitFor(() => {
-      expect(mockRequestPermission).toHaveBeenCalled()
-      expect(mockSetNotificationPermission).toHaveBeenCalledWith('granted')
+    expect(mockRequestPermission).toHaveBeenCalled()
+    expect(mockSetNotificationPermission).toHaveBeenCalledWith('granted')
+    expect(mockShowNotification).toHaveBeenCalledWith({
+      title: 'Bildirimler Etkin',
+      body: 'Artık maç haberlerini alacaksınız',
+      tag: 'permission-granted',
+      contentType: 'news',
+      link: '/news'
     })
   })
 
-  it('shows mobile bottom navigation on small screens', () => {
+  it('handles notification permission denial', async () => {
+    mockRequestPermission.mockResolvedValue(false)
+
     render(
       <BrowserRouter>
         <AppShell />
       </BrowserRouter>
     )
 
-    const mobileNav = screen.getByLabelText('Mobile navigasyon')
-    expect(mobileNav).toBeInTheDocument()
+    const notificationButton = screen.getByLabelText('Bildirim izni iste')
+    fireEvent.click(notificationButton)
+
+    expect(mockRequestPermission).toHaveBeenCalled()
+    expect(mockSetNotificationPermission).toHaveBeenCalledWith('denied')
   })
 })
