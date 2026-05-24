@@ -54,7 +54,7 @@ interface AppActions {
 
 type AppStore = AppState & AppActions
 
-const useAppStore = create<AppStore>()(
+export const useAppStore = create<AppStore>()(
   persist(
     (set, get) => ({
       theme: 'dark',
