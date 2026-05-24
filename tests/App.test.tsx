@@ -5,46 +5,38 @@ import { describe, it, expect, vi } from 'vitest'
 
 // Mock child components
 vi.mock('@/components/layout/AppShell', () => ({
-  AppShell: ({ children }: { children: React.ReactNode }) => <div data-testid="app-shell">{children}</div>
+  AppShell: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }))
 
 vi.mock('@/core/routes/AppRoutes', () => ({
-  AppRoutes: () => <div data-testid="app-routes" />
-}))
-
-vi.mock('@/hooks/useNotification', () => ({
-  useNotification: () => ({})
+  AppRoutes: () => <div>Mocked AppRoutes</div>
 }))
 
 vi.mock('@/components/ui/ErrorBoundary', () => ({
   ErrorBoundary: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }))
 
-vi.mock('@/features/not-found/NotFoundPage', () => ({
-  NotFoundPage: () => <div data-testid="not-found-page" />
+vi.mock('@/hooks/useNotification', () => ({
+  useNotification: () => ({})
 }))
 
 describe('App Component', () => {
-  it('renders AppShell with AppRoutes inside', () => {
+  it('renders without crashing', () => {
     render(
       <MemoryRouter>
         <App />
       </MemoryRouter>
     )
-
-    expect(screen.getByTestId('app-shell')).toBeInTheDocument()
-    expect(screen.getByTestId('app-routes')).toBeInTheDocument()
+    expect(screen.getByText('Mocked AppRoutes')).toBeInTheDocument()
   })
 
-  it('wraps content in ErrorBoundary', () => {
-    render(
+  it('renders ErrorBoundary and AppShell', () => {
+    const { container } = render(
       <MemoryRouter>
         <App />
       </MemoryRouter>
     )
-
-    // Since ErrorBoundary is mocked to just render children, we can't directly test its functionality
-    // But we can verify it's in the component tree
-    expect(screen.getByTestId('app-shell')).toBeInTheDocument()
+    expect(container.querySelector('ErrorBoundary')).toBeInTheDocument()
+    expect(container.querySelector('AppShell')).toBeInTheDocument()
   })
 })

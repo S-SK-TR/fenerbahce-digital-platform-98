@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { Button } from '@/components/ui/Button'
-import { useStore } from '@/store/useAppStore'
+import useAppStore from '@/store/useAppStore'
 import { useNavigate } from 'react-router-dom'
 
 interface HeroBannerProps {
@@ -13,7 +13,7 @@ interface HeroBannerProps {
 
 export function HeroBanner({ title, subtitle, ctaText, ctaLink }: HeroBannerProps) {
   const navigate = useNavigate()
-  const { theme } = useStore()
+  const { theme } = useAppStore()
 
   return (
     <GlassCard className="relative overflow-hidden">
