@@ -13,6 +13,8 @@ Tüm önemli değişiklikler bu dosyada belgelenir.
 - Workflow'lar oluşturuldu (setup, dev, test, deploy, review)
 - Proje kuralları ve standartlar belgelendi
 - Collection yapıları oluşturuldu (prompts, templates)
+- AI içerik sistemi entegre edildi (useAIContent hook, FeedbackButtons bileşeni)
+- AI içerik sistemi için son inceleme testleri eklendi
 
 ### Changed
 - (henüz yok)

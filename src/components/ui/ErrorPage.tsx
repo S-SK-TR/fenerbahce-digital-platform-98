@@ -21,7 +21,7 @@ export function ErrorPage({ error }: ErrorPageProps) {
           </div>
           <h1 className="text-2xl font-bold text-red-500">Bir Hata Oluştu</h1>
           <p className="text-sm text-gray-500">
-            {error?.message || 'Beklenmedik bir hata meydana geldi. Lütfen sayfayı yenileyin.'}
+            {error?.message || 'Beklenmeyen bir hata meydana geldi. Lütfen sayfayı yenileyin.'}
           </p>
           <Button
             variant="primary"

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock Zustand store
 vi.mock('@/store/useAppStore', () => ({
@@ -10,14 +10,31 @@ vi.mock('@/store/useAppStore', () => ({
   })
 }))
 
+// Mock document.documentElement.classList
+const mockClassList = {
+  toggle: vi.fn(),
+  add: vi.fn(),
+  remove: vi.fn()
+}
+
+Object.defineProperty(document, 'documentElement', {
+  value: {
+    classList: mockClassList
+  },
+  writable: true
+})
+
 describe('ThemeToggle Component', () => {
-  it('renders with light theme icon', () => {
-    render(<ThemeToggle />)
-    const moonIcon = screen.getByTestId('moon-icon')
-    expect(moonIcon).toBeInTheDocument()
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it('renders with dark theme icon when theme is dark', () => {
+  it('renders with sun icon in light mode', () => {
+    render(<ThemeToggle />)
+    expect(screen.getByLabelText('Switch to dark mode')).toBeInTheDocument()
+  })
+
+  it('renders with moon icon in dark mode', () => {
     vi.mock('@/store/useAppStore', () => ({
       default: () => ({
         theme: 'dark',
@@ -26,11 +43,10 @@ describe('ThemeToggle Component', () => {
     }))
 
     render(<ThemeToggle />)
-    const sunIcon = screen.getByTestId('sun-icon')
-    expect(sunIcon).toBeInTheDocument()
+    expect(screen.getByLabelText('Switch to light mode')).toBeInTheDocument()
   })
 
-  it('toggles theme on click', async () => {
+  it('toggles theme when clicked', async () => {
     const setTheme = vi.fn()
     vi.mock('@/store/useAppStore', () => ({
       default: () => ({
@@ -40,8 +56,16 @@ describe('ThemeToggle Component', () => {
     }))
 
     render(<ThemeToggle />)
-    const toggleButton = screen.getByRole('button')
-    await fireEvent.click(toggleButton)
+    const button = screen.getByLabelText('Switch to dark mode')
+    await fireEvent.click(button)
+
     expect(setTheme).toHaveBeenCalledWith('dark')
+    expect(mockClassList.toggle).toHaveBeenCalledWith('dark', true)
+  })
+
+  it('applies additional className when provided', () => {
+    render(<ThemeToggle className="custom-class" />)
+    const button = screen.getByLabelText('Switch to dark mode')
+    expect(button).toHaveClass('custom-class')
   })
 })

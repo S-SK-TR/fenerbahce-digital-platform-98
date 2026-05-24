@@ -1,46 +1,66 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import { ErrorBoundary } from '../../../src/components/ui/ErrorBoundary'
 
-// Mock ErrorPage component
-vi.mock('@/components/ui/ErrorPage', () => ({
+// Mock the ErrorPage component
+vi.mock('../../../src/components/ui/ErrorPage', () => ({
   ErrorPage: ({ error }: { error?: Error }) => (
     <div data-testid="error-page">
-      {error?.message || 'Default error message'}
+      <h1>Error Page</h1>
+      <p>{error?.message}</p>
     </div>
   )
 }))
 
-const ProblemChild = () => {
-  throw new Error('Test error')
-  return null
-}
-
 describe('ErrorBoundary Component', () => {
-  it('renders children when no error', () => {
+  it('renders children when no error occurs', () => {
     render(
       <ErrorBoundary>
-        <div>Safe content</div>
+        <div>Normal Content</div>
       </ErrorBoundary>
     )
-    expect(screen.getByText('Safe content')).toBeInTheDocument()
+    expect(screen.getByText('Normal Content')).toBeInTheDocument()
   })
 
-  it('catches errors and displays fallback UI', () => {
-    const spy = vi.spyOn(console, 'error')
-    spy.mockImplementation(() => {})
+  it('renders ErrorPage when an error occurs', () => {
+    const ErrorComponent = () => {
+      throw new Error('Test error')
+    }
 
     expect(() => {
       render(
         <ErrorBoundary>
-          <ProblemChild />
+          <ErrorComponent />
         </ErrorBoundary>
       )
-    }).not.toThrow()
+    }).toThrow('Test error')
 
+    // After error, ErrorPage should be rendered
     expect(screen.getByTestId('error-page')).toBeInTheDocument()
+    expect(screen.getByText('Error Page')).toBeInTheDocument()
     expect(screen.getByText('Test error')).toBeInTheDocument()
+  })
 
-    spy.mockRestore()
+  it('logs errors to console', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const ErrorComponent = () => {
+      throw new Error('Test error')
+    }
+
+    expect(() => {
+      render(
+        <ErrorBoundary>
+          <ErrorComponent />
+        </ErrorBoundary>
+      )
+    }).toThrow('Test error')
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'ErrorBoundary caught an error:',
+      expect.any(Error),
+      expect.objectContaining({ componentStack: expect.any(String) })
+    )
+
+    consoleErrorSpy.mockRestore()
   })
 })

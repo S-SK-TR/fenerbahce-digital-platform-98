@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { Button } from '@/components/ui/Button'
 import { Calendar, Clock, Trophy, Users, MapPin } from 'lucide-react'
+import { AIMatchPredictions } from '../components/AIMatchPredictions'
 
 interface Match {
   id: string
@@ -183,6 +184,7 @@ export function FixturesPage() {
                     <MapPin size={14} className="ml-2" />
                     {match.stadium}
                   </div>
+                  <AIMatchPredictions matchId={match.id} />
                 </motion.div>
               ))}
             </div>

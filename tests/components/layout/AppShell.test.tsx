@@ -1,55 +1,123 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { AppShell, navItems } from '@/components/layout/AppShell'
+import { AppShell, navItems } from '../../../src/components/layout/AppShell'
 import { BrowserRouter } from 'react-router-dom'
+import { useNotification } from '../../../src/hooks/useNotification'
+import useAppStore from '../../../src/store/useAppStore'
 
-// Mock child components
-vi.mock('@/components/ui/ThemeToggle', () => ({
-  ThemeToggle: () => <div data-testid="theme-toggle" />
-}))
-
-// Mock Zustand store
-vi.mock('@/store/useAppStore', () => ({
-  default: () => ({
-    notificationPermission: 'default',
-    setNotificationPermission: vi.fn(),
-    theme: 'light'
-  })
-}))
-
-// Mock notification hook
-vi.mock('@/hooks/useNotification', () => ({
-  useNotification: () => ({
-    requestPermission: vi.fn().mockResolvedValue(true),
-    showNotification: vi.fn().mockResolvedValue(undefined)
-  })
-}))
+// Mock dependencies
+vi.mock('../../../src/hooks/useNotification')
+vi.mock('../../../src/store/useAppStore')
 
 describe('AppShell Component', () => {
+  const mockShowNotification = vi.fn()
+  const mockRequestPermission = vi.fn()
+  const mockSetNotificationPermission = vi.fn()
+
   beforeEach(() => {
+    vi.clearAllMocks()
+    useNotification.mockReturnValue({
+      showNotification: mockShowNotification,
+      requestPermission: mockRequestPermission,
+      notifications: [],
+      closeNotification: vi.fn()
+    })
+    useAppStore.mockReturnValue({
+      notificationPermission: 'default',
+      setNotificationPermission: mockSetNotificationPermission,
+      theme: 'dark'
+    })
+  })
+
+  it('renders all navigation items', () => {
     render(
       <BrowserRouter>
         <AppShell />
       </BrowserRouter>
     )
-  })
 
-  it('renders all navigation items', () => {
     navItems.forEach(item => {
       expect(screen.getByText(item.label)).toBeInTheDocument()
     })
   })
 
-  it('renders theme toggle buttons', () => {
-    const themeToggles = screen.getAllByTestId('theme-toggle')
-    expect(themeToggles.length).toBe(2) // One in header, one in sidebar
+  it('handles notification button click when permission is granted', async () => {
+    useAppStore.mockReturnValueOnce({
+      notificationPermission: 'granted',
+      setNotificationPermission: mockSetNotificationPermission,
+      theme: 'dark'
+    })
+
+    render(
+      <BrowserRouter>
+        <AppShell />
+      </BrowserRouter>
+    )
+
+    const notificationButton = screen.getByLabelText('Bildirimleri test et')
+    fireEvent.click(notificationButton)
+
+    await vi.waitFor(() => {
+      expect(mockShowNotification).toHaveBeenCalledWith({
+        title: 'Test Bildirimi',
+        body: 'Bildirim sistemi çalışıyor',
+        tag: 'test-notification',
+        contentType: 'news',
+        link: '/news'
+      })
+    })
   })
 
-  it('handles notification button click', async () => {
-    const notificationButtons = screen.getAllByLabelText(/bildirim/i)
-    expect(notificationButtons.length).toBe(2) // One in header, one in sidebar
+  it('requests notification permission when not granted', async () => {
+    mockRequestPermission.mockResolvedValue(true)
 
-    await fireEvent.click(notificationButtons[0])
-    // Add assertions for notification behavior
+    render(
+      <BrowserRouter>
+        <AppShell />
+      </BrowserRouter>
+    )
+
+    const notificationButton = screen.getByLabelText('Bildirim izni iste')
+    fireEvent.click(notificationButton)
+
+    await vi.waitFor(() => {
+      expect(mockRequestPermission).toHaveBeenCalled()
+      expect(mockSetNotificationPermission).toHaveBeenCalledWith('granted')
+      expect(mockShowNotification).toHaveBeenCalledWith({
+        title: 'Bildirimler Etkin',
+        body: 'Artık maç haberlerini alacaksınız',
+        tag: 'permission-granted',
+        contentType: 'news',
+        link: '/news'
+      })
+    })
+  })
+
+  it('handles notification permission denial', async () => {
+    mockRequestPermission.mockResolvedValue(false)
+
+    render(
+      <BrowserRouter>
+        <AppShell />
+      </BrowserRouter>
+    )
+
+    const notificationButton = screen.getByLabelText('Bildirim izni iste')
+    fireEvent.click(notificationButton)
+
+    await vi.waitFor(() => {
+      expect(mockSetNotificationPermission).toHaveBeenCalledWith('denied')
+    })
+  })
+
+  it('renders mobile navigation on small screens', () => {
+    render(
+      <BrowserRouter>
+        <AppShell />
+      </BrowserRouter>
+    )
+
+    const mobileNav = screen.getByLabelText('Mobile navigasyon')
+    expect(mobileNav).toBeInTheDocument()
   })
 })

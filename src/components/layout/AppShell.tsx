@@ -1,25 +1,28 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, BarChart2, Settings, Bell, Home, Users, Calendar, Shield, HelpCircle, Newspaper, Trophy, Music } from 'lucide-react'
+import { LayoutDashboard, BarChart2, Settings, Bell, Home, Users, Calendar, Shield, HelpCircle, Newspaper, Trophy, Music, HelpCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import useAppStore from '@/store/useAppStore'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { NotificationToast } from '@/components/ui/NotificationToast'
 
 const navItems = [
   { to: '/', icon: Home, label: 'Ana Sayfa', ariaLabel: 'Ana sayfa' },
   { to: '/news', icon: Newspaper, label: 'Haberler', ariaLabel: 'Fenerbahçe haberleri' },
   { to: '/fixtures', icon: Trophy, label: 'Fikstür', ariaLabel: 'Maç fikstürleri ve puan durumu' },
+  { to: '/analytics', icon: BarChart2, label: 'Analiz', ariaLabel: 'İçerik analizi' },
   { to: '/membership', icon: Shield, label: 'Üyelik', ariaLabel: 'Üyelik bilgileri' },
   { to: '/store/fenerium', icon: Music, label: 'Fenerium', ariaLabel: 'Fenerbahçe mağazası' },
   { to: '/fanzone', icon: Music, label: 'Fan Zone', ariaLabel: 'Taraftar aktiviteleri' },
+  { to: '/ai-content', icon: HelpCircle, label: 'AI Tercihler', ariaLabel: 'AI içerik tercihleri' },
   { to: '/settings', icon: Settings, label: 'Ayarlar', ariaLabel: 'Uygulama ayarları' }
 ]
 
 export { navItems }
 
 export function AppShell() {
-  const { requestPermission, showNotification } = useNotification();
+  const { requestPermission, showNotification, notifications, closeNotification } = useNotification();
   const { notificationPermission, setNotificationPermission, theme } = useAppStore();
 
   const handleNotificationClick = async () => {
@@ -27,7 +30,9 @@ export function AppShell() {
       await showNotification({
         title: 'Test Bildirimi',
         body: 'Bildirim sistemi çalışıyor',
-        tag: 'test-notification'
+        tag: 'test-notification',
+        contentType: 'news',
+        link: '/news'
       });
     } else {
       const granted = await requestPermission();
@@ -36,7 +41,9 @@ export function AppShell() {
         await showNotification({
           title: 'Bildirimler Etkin',
           body: 'Artık maç haberlerini alacaksınız',
-          tag: 'permission-granted'
+          tag: 'permission-granted',
+          contentType: 'news',
+          link: '/news'
         });
       } else {
         setNotificationPermission('denied');
@@ -66,7 +73,7 @@ export function AppShell() {
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                 isActive
                   ? "bg-fb-gold-500/10 text-fb-gold-500 border-l-2 border-fb-gold-500"
-                  : "text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+                  : "text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
               )}
             >
               <Icon size={18} />
@@ -79,7 +86,7 @@ export function AppShell() {
         <div className="p-3 border-t border-[var(--border)]">
           <button
             onClick={handleNotificationClick}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[var(--bg-surface)] transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[var(--bg-elevated)] transition-colors"
             aria-label={notificationPermission === 'granted' ? 'Bildirimleri test et' : 'Bildirim izni iste'}
           >
             <Bell size={18} />
@@ -91,7 +98,7 @@ export function AppShell() {
 
         {/* User Footer */}
         <div className="p-3 border-t border-[var(--border)]">
-          <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[var(--bg-surface)] transition-colors">
+          <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[var(--bg-elevated)] transition-colors">
             <img src="/avatar.png" className="w-8 h-8 rounded-full object-cover" alt="avatar" />
             <div className="flex-1 text-left">
               <p className="text-xs font-semibold">Fenerbahçe Fan</p>
@@ -110,7 +117,7 @@ export function AppShell() {
           <div className="flex items-center gap-4">
             <button
               onClick={handleNotificationClick}
-              className="relative p-2 rounded-lg hover:bg-[var(--bg-surface)] transition-colors"
+              className="relative p-2 rounded-lg hover:bg-[var(--bg-elevated)] transition-colors"
               aria-label={notificationPermission === 'granted' ? 'Bildirimleri test et' : 'Bildirim izni iste'}
             >
               <Bell size={20} />
@@ -148,6 +155,19 @@ export function AppShell() {
           ))}
         </div>
       </nav>
+
+      {/* Bildirimler */}
+      {notifications.map(notification => (
+        <NotificationToast
+          key={notification.id}
+          id={notification.id}
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          link={notification.link}
+          onClose={() => closeNotification(notification.id)}
+        />
+      ))}
     </div>
   )
 }

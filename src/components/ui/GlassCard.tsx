@@ -1,14 +1,22 @@
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useTilt } from '@/hooks/useTilt'
+import { SkeletonLoader } from './SkeletonLoader'
 
 interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
   className?: string
   tilt?: boolean
+  isLoading?: boolean
 }
 
-export function GlassCard({ children, className, tilt = true, ...props }: GlassCardProps) {
+export function GlassCard({
+  children,
+  className,
+  tilt = true,
+  isLoading = false,
+  ...props
+}: GlassCardProps) {
   const { ref, style } = useTilt({ maxTilt: 10, scale: 1.02 })
 
   return (
@@ -26,7 +34,16 @@ export function GlassCard({ children, className, tilt = true, ...props }: GlassC
       )}
       {...props}
     >
-      {children}
+      {isLoading ? (
+        <div className="min-h-[200px] flex items-center justify-center">
+          <SkeletonLoader className="w-full" lines={4} />
+          <div className="mt-4 flex justify-center">
+            <div className="w-32 h-8 bg-[var(--bg-surface)]/30 rounded-lg animate-pulse"></div>
+          </div>
+        </div>
+      ) : (
+        children
+      )}
     </motion.div>
   )
 }

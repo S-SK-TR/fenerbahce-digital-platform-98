@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { Button } from '@/components/ui/Button'
-import { Play, Pause, Volume2, VolumeX, Maximize2, HelpCircle, Newspaper } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, Maximize2, HelpCircle, Newspaper, RefreshCw } from 'lucide-react'
+import { NewsGrid } from '../components/NewsGrid'
+import { ContentFilter } from '@/features/ai-content/components/ContentFilter'
+import { useAIContent } from '@/features/ai-content/hooks/useAIContent'
+import { useAppStore } from '@/store/useAppStore'
 
 interface NewsItem {
   id: string
@@ -11,34 +15,8 @@ interface NewsItem {
   imageUrl: string
   category: string
   date: string
+  teamLogos?: string[]
 }
-
-const mockNews: NewsItem[] = [
-  {
-    id: '1',
-    title: 'Fenerbahçe, Şampiyonlar Ligi gruplarını açtı',
-    content: 'Fenerbahçe, Şampiyonlar Ligi gruplarını açtı ve ilk maçında Barcelona ile karşılaştı.',
-    imageUrl: 'https://example.com/fb-vs-barcelona.jpg',
-    category: 'Futbol',
-    date: '2023-09-20'
-  },
-  {
-    id: '2',
-    title: 'Yeni transfer haberleri',
-    content: 'Fenerbahçe, yeni transferler hakkında bilgiler verdi.',
-    imageUrl: 'https://example.com/transfer-haberleri.jpg',
-    category: 'Transfer',
-    date: '2023-09-19'
-  },
-  {
-    id: '3',
-    title: 'Kulüp tarihi',
-    content: 'Fenerbahçe, 100. yılını kutladı.',
-    imageUrl: 'https://example.com/kulup-tarihi.jpg',
-    category: 'Kulüp',
-    date: '2023-09-18'
-  }
-]
 
 const liveChannels = [
   { id: '1', name: 'Fenerbahçe TV', logo: 'https://example.com/fb-tv-logo.png' },
@@ -56,23 +34,51 @@ const containerVariants = {
   }
 }
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 }
-}
-
 export const NewsFeedPage = () => {
   const [activeChannel, setActiveChannel] = useState(liveChannels[0])
   const [isPlaying, setIsPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [filters, setFilters] = useState({ contentTypes: ['news'], feedbackTypes: [] })
+
+  const { aiContent, fetchContent, isLoading } = useAIContent()
+  const { showNotification } = useAppStore()
 
   const togglePlay = () => setIsPlaying(!isPlaying)
   const toggleMute = () => setIsMuted(!isMuted)
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen)
 
+  const handleRefreshContent = async () => {
+    try {
+      await fetchContent('news')
+      showNotification({
+        title: 'İçerik yenilendi',
+        message: 'AI tarafından yeni içerikler yüklendi',
+        type: 'success'
+      })
+    } catch (error) {
+      showNotification({
+        title: 'Hata',
+        message: 'İçerik yenileme sırasında bir hata oluştu',
+        type: 'error'
+      })
+    }
+  }
+
+  const filteredNews = aiContent.news.map((title, index) => ({
+    id: `news-${index}`,
+    title,
+    content: 'AI tarafından oluşturulan haber içeriği',
+    imageUrl: 'https://example.com/ai-news.jpg',
+    category: 'AI',
+    date: new Date().toISOString().split('T')[0],
+    teamLogos: ['https://example.com/fb-logo.png', 'https://example.com/ai-logo.png']
+  }))
+
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto w-full">
+      <ContentFilter onFilterChange={setFilters} initialFilters={filters} />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* FB TV Simülasyonu */}
         <div className="lg:col-span-2">
@@ -141,32 +147,21 @@ export const NewsFeedPage = () => {
             animate="show"
             className="space-y-4"
           >
-            {mockNews.map((news, index) => (
-              <motion.div key={news.id} variants={itemVariants}>
-                <GlassCard className="p-4">
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <div className="md:w-1/3">
-                      <img
-                        src={news.imageUrl}
-                        alt={news.title}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                    </div>
-                    <div className="md:w-2/3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="bg-fb-gold-500/10 text-fb-gold-500 text-xs font-medium px-2 py-1 rounded-full">
-                          {news.category}
-                        </span>
-                        <span className="text-xs text-white/50">{news.date}</span>
-                      </div>
-                      <h3 className="text-lg font-bold text-white mb-2">{news.title}</h3>
-                      <p className="text-sm text-white/80 mb-3">{news.content}</p>
-                      <Button variant="secondary" size="sm">Devamını Oku</Button>
-                    </div>
-                  </div>
-                </GlassCard>
-              </motion.div>
-            ))}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Newspaper size={20} /> AI Haberleri
+              </h2>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleRefreshContent}
+                loading={isLoading}
+                icon={RefreshCw}
+              >
+                Yenile
+              </Button>
+            </div>
+            <NewsGrid newsItems={filteredNews} />
           </motion.div>
         </div>
       </div>

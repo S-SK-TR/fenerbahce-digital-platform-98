@@ -17,12 +17,12 @@ test('Mobil navigasyon düğmeleri doğru şekilde görünür', async () => {
   )
 
   // Mobil alt navigasyon çubuğunu kontrol et
-  const mobileNav = screen.getByRole('navigation', { name: /mobile/i })
+  const mobileNav = screen.getByRole('navigation', { name: /mobile navigasyon/i })
   expect(mobileNav).toBeInTheDocument()
 
   // Tüm mobil navigasyon öğelerini kontrol et
   navItems.forEach(item => {
-    const navItem = screen.getByRole('link', { name: item.label })
+    const navItem = screen.getByRole('link', { name: item.ariaLabel })
     expect(navItem).toBeInTheDocument()
   })
 })

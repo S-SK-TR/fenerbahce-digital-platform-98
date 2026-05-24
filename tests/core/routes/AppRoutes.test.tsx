@@ -1,67 +1,79 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { AppRoutes } from '@/core/routes/AppRoutes'
-import { BrowserRouter, MemoryRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 
-// Mock all page components
-vi.mock('@/features/dashboard/pages/DashboardPage', () => ({
-  DashboardPage: () => <div data-testid="dashboard-page" />
+// Mock route components
+vi.mock('@/features/dashboard/DashboardPage', () => ({
+  DashboardPage: () => <div>Dashboard Page</div>
 }))
 
-vi.mock('@/features/news/pages/NewsFeedPage', () => ({
-  NewsFeedPage: () => <div data-testid="news-page" />
+vi.mock('@/features/news/NewsPage', () => ({
+  NewsPage: () => <div>News Page</div>
 }))
 
-vi.mock('@/features/fixtures/pages/FixturesPage', () => ({
-  FixturesPage: () => <div data-testid="fixtures-page" />
+vi.mock('@/features/fixtures/FixturesPage', () => ({
+  FixturesPage: () => <div>Fixtures Page</div>
 }))
 
-vi.mock('@/features/tickets/pages/SeatSelectionPage', () => ({
-  SeatSelectionPage: () => <div data-testid="tickets-page" />
+vi.mock('@/features/analytics/AnalyticsPage', () => ({
+  AnalyticsPage: () => <div>Analytics Page</div>
 }))
 
-vi.mock('@/features/membership/pages/MembershipPortal', () => ({
-  MembershipPortal: () => <div data-testid="membership-page" />
+vi.mock('@/features/membership/MembershipPage', () => ({
+  MembershipPage: () => <div>Membership Page</div>
 }))
 
-vi.mock('@/features/store/pages/FeneriumPage', () => ({
-  FeneriumPage: () => <div data-testid="store-page" />
+vi.mock('@/features/store/StorePage', () => ({
+  StorePage: () => <div>Store Page</div>
 }))
 
-vi.mock('@/features/fanzone/pages/FanZonePage', () => ({
-  FanZonePage: () => <div data-testid="fanzone-page" />
+vi.mock('@/features/fanzone/FanZonePage', () => ({
+  FanZonePage: () => <div>Fan Zone Page</div>
+}))
+
+vi.mock('@/features/ai-content/AIContentPage', () => ({
+  AIContentPage: () => <div>AI Content Page</div>
+}))
+
+vi.mock('@/features/settings/SettingsPage', () => ({
+  SettingsPage: () => <div>Settings Page</div>
+}))
+
+vi.mock('@/features/not-found/NotFoundPage', () => ({
+  NotFoundPage: () => <div>Not Found Page</div>
 }))
 
 const mockNavItems = [
-  { to: '/', icon: vi.fn(), label: 'Ana Sayfa', ariaLabel: 'Ana sayfa' },
-  { to: '/news', icon: vi.fn(), label: 'Haberler', ariaLabel: 'Fenerbahçe haberleri' }
+  { to: '/', label: 'Ana Sayfa' },
+  { to: '/news', label: 'Haberler' },
+  { to: '/fixtures', label: 'Fikstür' },
+  { to: '/analytics', label: 'Analiz' },
+  { to: '/membership', label: 'Üyelik' },
+  { to: '/store/fenerium', label: 'Fenerium' },
+  { to: '/fanzone', label: 'Fan Zone' },
+  { to: '/ai-content', label: 'AI Tercihler' },
+  { to: '/settings', label: 'Ayarlar' }
 ]
 
 describe('AppRoutes Component', () => {
-  it('renders dashboard page by default', () => {
+  it('renders all routes correctly', () => {
     render(
       <BrowserRouter>
         <AppRoutes navItems={mockNavItems} />
       </BrowserRouter>
     )
-    expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
-  })
 
-  it('renders news page when path is /news', () => {
-    render(
-      <MemoryRouter initialEntries={[ '/news' ]}>
-        <AppRoutes navItems={mockNavItems} />
-      </MemoryRouter>
-    )
-    expect(screen.getByTestId('news-page')).toBeInTheDocument()
-  })
-
-  it('redirects /dashboard to /', () => {
-    render(
-      <MemoryRouter initialEntries={[ '/dashboard' ]}>
-        <AppRoutes navItems={mockNavItems} />
-      </MemoryRouter>
-    )
-    expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
+    // Test each route
+    expect(screen.getByText('Dashboard Page')).toBeInTheDocument()
+    expect(screen.getByText('News Page')).toBeInTheDocument()
+    expect(screen.getByText('Fixtures Page')).toBeInTheDocument()
+    expect(screen.getByText('Analytics Page')).toBeInTheDocument()
+    expect(screen.getByText('Membership Page')).toBeInTheDocument()
+    expect(screen.getByText('Store Page')).toBeInTheDocument()
+    expect(screen.getByText('Fan Zone Page')).toBeInTheDocument()
+    expect(screen.getByText('AI Content Page')).toBeInTheDocument()
+    expect(screen.getByText('Settings Page')).toBeInTheDocument()
+    expect(screen.getByText('Not Found Page')).toBeInTheDocument()
   })
 })

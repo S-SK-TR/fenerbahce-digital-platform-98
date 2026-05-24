@@ -7,6 +7,7 @@ import { SeatSelectionPage } from '@/features/tickets/pages/SeatSelectionPage'
 import { MembershipPortal } from '@/features/membership/pages/MembershipPortal'
 import { FeneriumPage } from '@/features/store/pages/FeneriumPage'
 import { FanZonePage } from '@/features/fanzone/pages/FanZonePage'
+import { AnalyticsDashboard } from '@/features/analytics/pages/AnalyticsDashboard'
 
 interface AppRoutesProps {
   navItems: Array<{
@@ -29,6 +30,7 @@ export function AppRoutes({ navItems }: AppRoutesProps) {
         <Route path="/membership" element={<MembershipPortal />} />
         <Route path="/store/fenerium" element={<FeneriumPage />} />
         <Route path="/fanzone" element={<FanZonePage />} />
+        <Route path="/analytics" element={<AnalyticsDashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>

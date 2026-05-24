@@ -17,8 +17,7 @@ export function Button({
   children,
   className,
   disabled,
-  ...props
-}: ButtonProps) {
+  ...props }: ButtonProps) {
   return (
     <motion.button
       disabled={disabled || loading}

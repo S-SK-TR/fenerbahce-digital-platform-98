@@ -11,6 +11,7 @@ interface NextMatchProps {
   time: string
   location: string
   onViewDetails: () => void
+  isLoading?: boolean
 }
 
 export function NextMatchWidget({
@@ -19,7 +20,8 @@ export function NextMatchWidget({
   date,
   time,
   location,
-  onViewDetails
+  onViewDetails,
+  isLoading = false
 }: NextMatchProps) {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [isLive, setIsLive] = useState(false)
@@ -77,7 +79,7 @@ export function NextMatchWidget({
   )
 
   return (
-    <GlassCard className="relative overflow-hidden">
+    <GlassCard className="relative overflow-hidden" isLoading={isLoading}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

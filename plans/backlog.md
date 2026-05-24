@@ -17,7 +17,8 @@
 
 | # | Görev | Öncelik | Durum | Assignee |
 |---|-------|---------|-------|----------|
-| 1 | [Görev açıklaması] | P1 | ⬜ | - |
+| 1 | AI içerik sistemi için son inceleme testleri ekle | P1 | ✅ | - |
+| 2 | AI içerik sistemi için kullanıcı geri bildirim sistemi iyileştir | P1 | 🟡 | - |
 
 ---
 
@@ -25,7 +26,8 @@
 
 | # | Görev | Öncelik | Durum | Assignee |
 |---|-------|---------|-------|----------|
-| 1 | [Görev açıklaması] | P2 | ⬜ | - |
+| 1 | AI içerik sistemi için performans optimizasyonları yap | P2 | ⬜ | - |
+| 2 | AI içerik sistemi için kullanıcı tercihleri ekranı geliştir | P2 | ⬜ | - |
 
 ---
 
@@ -33,7 +35,7 @@
 
 | # | Görev | Öncelik | Durum | Assignee |
 |---|-------|---------|-------|----------|
-| 1 | [Görev açıklaması] | P3 | ⬜ | - |
+| 1 | AI içerik sistemi için öneri motoru ekle | P3 | ⬜ | - |
 
 ---
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useAppStore from '@/store/useAppStore';
 
 interface NotificationOptions {
@@ -8,10 +8,21 @@ interface NotificationOptions {
   data?: any;
   vibrate?: number[];
   tag?: string;
+  contentType?: 'news' | 'fixture' | 'fanzone' | 'membership';
+  link?: string;
+}
+
+interface Notification {
+  id: string;
+  type: 'news' | 'fixture' | 'fanzone' | 'membership';
+  title: string;
+  message: string;
+  link?: string;
 }
 
 export function useNotification() {
   const { setPwaUpdateAvailable } = useAppStore();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // Bildirim izni iste
   const requestPermission = async () => {
@@ -51,11 +62,32 @@ export function useNotification() {
       notification.onclick = (event) => {
         event.preventDefault();
         window.focus();
-        // Burada bildirim tıklama işlemleri yapılabilir
+        if (options.link) {
+          window.open(options.link, '_blank');
+        }
       };
+
+      // UI bildirimi ekle
+      if (options.contentType) {
+        setNotifications(prev => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            type: options.contentType,
+            title: options.title,
+            message: options.body,
+            link: options.link
+          }
+        ]);
+      }
     } catch (error) {
       console.error('Bildirim gösterilemedi:', error);
     }
+  };
+
+  // Bildirimi kapat
+  const closeNotification = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
   // PWA güncelleme bildirimi
@@ -74,6 +106,8 @@ export function useNotification() {
 
   return {
     requestPermission,
-    showNotification
+    showNotification,
+    notifications,
+    closeNotification
   };
 }
