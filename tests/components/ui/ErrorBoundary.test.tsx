@@ -5,28 +5,29 @@ import { describe, it, expect, vi } from 'vitest'
 // Mock ErrorPage component
 vi.mock('@/components/ui/ErrorPage', () => ({
   ErrorPage: ({ error }: { error?: Error }) => (
-    <div>Error Page: {error?.message}</div>
+    <div data-testid="error-page">
+      {error?.message || 'An error occurred'}
+    </div>
   )
 }))
 
 const ProblemChild = () => {
   throw new Error('Test error')
-  return <div>Child</div>
+  return null
 }
 
 describe('ErrorBoundary Component', () => {
   it('renders children when no error', () => {
     render(
       <ErrorBoundary>
-        <div>Normal Child</div>
+        <div>Safe content</div>
       </ErrorBoundary>
     )
-    expect(screen.getByText('Normal Child')).toBeInTheDocument()
+    expect(screen.getByText('Safe content')).toBeInTheDocument()
   })
 
-  it('catches errors and displays ErrorPage', () => {
-    const spy = vi.spyOn(console, 'error')
-    spy.mockImplementation(() => {})
+  it('catches errors and displays fallback UI', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     expect(() => {
       render(
@@ -36,7 +37,9 @@ describe('ErrorBoundary Component', () => {
       )
     }).not.toThrow()
 
-    expect(screen.getByText(/Error Page: Test error/i)).toBeInTheDocument()
+    expect(screen.getByTestId('error-page')).toBeInTheDocument()
+    expect(screen.getByText('Test error')).toBeInTheDocument()
+
     spy.mockRestore()
   })
 })

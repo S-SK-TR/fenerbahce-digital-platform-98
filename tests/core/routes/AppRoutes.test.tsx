@@ -5,51 +5,65 @@ import { describe, it, expect, vi } from 'vitest'
 
 // Mock page components
 vi.mock('@/features/dashboard/pages/DashboardPage', () => ({
-  DashboardPage: () => <div>Dashboard Page</div>
+  DashboardPage: () => <div data-testid="dashboard-page">Dashboard</div>
 }))
 
 vi.mock('@/features/news/pages/NewsFeedPage', () => ({
-  NewsFeedPage: () => <div>News Feed Page</div>
+  NewsFeedPage: () => <div data-testid="news-page">News</div>
 }))
 
 vi.mock('@/features/fixtures/pages/FixturesPage', () => ({
-  FixturesPage: () => <div>Fixtures Page</div>
+  FixturesPage: () => <div data-testid="fixtures-page">Fixtures</div>
+}))
+
+vi.mock('@/features/tickets/pages/SeatSelectionPage', () => ({
+  SeatSelectionPage: () => <div data-testid="tickets-page">Tickets</div>
 }))
 
 vi.mock('@/features/membership/pages/MembershipPortal', () => ({
-  MembershipPortal: () => <div>Membership Portal</div>
+  MembershipPortal: () => <div data-testid="membership-page">Membership</div>
 }))
 
 vi.mock('@/features/store/pages/FeneriumPage', () => ({
-  FeneriumPage: () => <div>Fenerium Page</div>
+  FeneriumPage: () => <div data-testid="fenerium-page">Fenerium</div>
 }))
 
 vi.mock('@/features/fanzone/pages/FanZonePage', () => ({
-  FanZonePage: () => <div>Fan Zone Page</div>
+  FanZonePage: () => <div data-testid="fanzone-page">Fan Zone</div>
 }))
 
 const mockNavItems = [
-  { to: '/', icon: vi.fn(), label: 'Ana Sayfa', ariaLabel: 'Ana sayfa' },
-  { to: '/news', icon: vi.fn(), label: 'Haberler', ariaLabel: 'Fenerbahçe haberleri' }
+  { to: '/', label: 'Ana Sayfa' },
+  { to: '/news', label: 'Haberler' },
+  { to: '/fixtures', label: 'Fikstür' }
 ]
 
 describe('AppRoutes Component', () => {
-  it('renders dashboard route', () => {
+  it('renders dashboard page by default', () => {
     render(
       <MemoryRouter initialEntries={[ '/' ]}>
         <AppRoutes navItems={mockNavItems} />
       </MemoryRouter>
     )
-    expect(screen.getByText('Dashboard Page')).toBeInTheDocument()
+    expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
   })
 
-  it('renders news route', () => {
+  it('renders news page when path is /news', () => {
     render(
       <MemoryRouter initialEntries={[ '/news' ]}>
         <AppRoutes navItems={mockNavItems} />
       </MemoryRouter>
     )
-    expect(screen.getByText('News Feed Page')).toBeInTheDocument()
+    expect(screen.getByTestId('news-page')).toBeInTheDocument()
+  })
+
+  it('renders fixtures page when path is /fixtures', () => {
+    render(
+      <MemoryRouter initialEntries={[ '/fixtures' ]}>
+        <AppRoutes navItems={mockNavItems} />
+      </MemoryRouter>
+    )
+    expect(screen.getByTestId('fixtures-page')).toBeInTheDocument()
   })
 
   it('redirects /dashboard to /', () => {
@@ -58,6 +72,6 @@ describe('AppRoutes Component', () => {
         <AppRoutes navItems={mockNavItems} />
       </MemoryRouter>
     )
-    expect(screen.getByText('Dashboard Page')).toBeInTheDocument()
+    expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
   })
 })

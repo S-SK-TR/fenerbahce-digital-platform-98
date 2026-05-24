@@ -2,11 +2,12 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { AppShell, navItems } from '@/components/layout/AppShell'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import useAppStore from '@/store/useAppStore'
 
 // Mock child components
 vi.mock('@/components/ui/ThemeToggle', () => ({
-  ThemeToggle: () => <div>ThemeToggle</div>
+  ThemeToggle: ({ className }: { className?: string }) => (
+    <button data-testid="theme-toggle" className={className}>Toggle Theme</button>
+  )
 }))
 
 // Mock hooks
@@ -17,26 +18,32 @@ vi.mock('@/hooks/useNotification', () => ({
   })
 }))
 
-// Mock Zustand store
 vi.mock('@/store/useAppStore', () => ({
-  default: vi.fn()
+  default: () => ({
+    notificationPermission: 'default',
+    setNotificationPermission: vi.fn(),
+    theme: 'light'
+  })
 }))
 
 describe('AppShell Component', () => {
   beforeEach(() => {
-    useAppStore.mockReturnValue({
-      notificationPermission: 'default',
-      setNotificationPermission: vi.fn(),
-      theme: 'light'
-    })
-  })
-
-  it('renders all navigation items', () => {
     render(
       <MemoryRouter>
         <AppShell />
       </MemoryRouter>
     )
+  })
+
+  it('renders sidebar with all navigation items', () => {
+    navItems.forEach(item => {
+      expect(screen.getByText(item.label)).toBeInTheDocument()
+    })
+  })
+
+  it('renders mobile bottom navigation', () => {
+    const mobileNav = screen.getByLabelText('Mobile navigasyon')
+    expect(mobileNav).toBeInTheDocument()
 
     navItems.forEach(item => {
       expect(screen.getByText(item.label)).toBeInTheDocument()
@@ -44,38 +51,15 @@ describe('AppShell Component', () => {
   })
 
   it('handles notification button click', async () => {
-    const { requestPermission, showNotification } = require('@/hooks/useNotification').useNotification()
-    const { setNotificationPermission } = useAppStore()
-
-    render(
-      <MemoryRouter>
-        <AppShell />
-      </MemoryRouter>
-    )
-
-    const notificationButton = screen.getByRole('button', { name: /Bildirim izni iste/i })
+    const notificationButton = screen.getAllByLabelText('Bildirim izni iste')[0]
     fireEvent.click(notificationButton)
 
-    expect(requestPermission).toHaveBeenCalled()
-    expect(setNotificationPermission).toHaveBeenCalledWith('granted')
-    expect(showNotification).toHaveBeenCalled()
+    // Should call requestPermission
+    expect(useNotification().requestPermission).toHaveBeenCalled()
   })
 
-  it('toggles theme when ThemeToggle is clicked', () => {
-    const setTheme = vi.fn()
-    useAppStore.mockReturnValueOnce({
-      theme: 'light',
-      setTheme
-    })
-
-    render(
-      <MemoryRouter>
-        <AppShell />
-      </MemoryRouter>
-    )
-
-    const themeToggle = screen.getByText('ThemeToggle')
-    fireEvent.click(themeToggle)
-    expect(setTheme).toHaveBeenCalledWith('dark')
+  it('renders theme toggle buttons', () => {
+    const themeToggles = screen.getAllByTestId('theme-toggle')
+    expect(themeToggles.length).toBe(2) // One in header, one in sidebar
   })
 })

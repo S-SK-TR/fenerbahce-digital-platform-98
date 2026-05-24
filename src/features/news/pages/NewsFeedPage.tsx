@@ -61,7 +61,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0 }
 }
 
-const NewsFeedPage = () => {
+export const NewsFeedPage = () => {
   const [activeChannel, setActiveChannel] = useState(liveChannels[0])
   const [isPlaying, setIsPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
@@ -173,5 +173,3 @@ const NewsFeedPage = () => {
     </div>
   )
 }
-
-export default NewsFeedPage
