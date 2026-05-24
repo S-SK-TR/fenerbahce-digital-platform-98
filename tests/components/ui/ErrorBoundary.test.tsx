@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react'
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 import { describe, it, expect, vi } from 'vitest'
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 
 // Mock ErrorPage component
 vi.mock('@/components/ui/ErrorPage', () => ({
   ErrorPage: ({ error }: { error?: Error }) => (
     <div data-testid="error-page">
-      {error?.message || 'An error occurred'}
+      {error?.message || 'Default error message'}
     </div>
   )
 }))
@@ -27,7 +27,8 @@ describe('ErrorBoundary Component', () => {
   })
 
   it('catches errors and displays fallback UI', () => {
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const spy = vi.spyOn(console, 'error')
+    spy.mockImplementation(() => {})
 
     expect(() => {
       render(

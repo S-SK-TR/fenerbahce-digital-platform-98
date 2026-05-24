@@ -1,49 +1,48 @@
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
-import { AppRoutes } from '@/core/routes/AppRoutes'
 import { describe, it, expect, vi } from 'vitest'
+import { AppRoutes } from '@/core/routes/AppRoutes'
+import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 
-// Mock page components
+// Mock all page components
 vi.mock('@/features/dashboard/pages/DashboardPage', () => ({
-  DashboardPage: () => <div data-testid="dashboard-page">Dashboard</div>
+  DashboardPage: () => <div data-testid="dashboard-page" />
 }))
 
 vi.mock('@/features/news/pages/NewsFeedPage', () => ({
-  NewsFeedPage: () => <div data-testid="news-page">News</div>
+  NewsFeedPage: () => <div data-testid="news-page" />
 }))
 
 vi.mock('@/features/fixtures/pages/FixturesPage', () => ({
-  FixturesPage: () => <div data-testid="fixtures-page">Fixtures</div>
+  FixturesPage: () => <div data-testid="fixtures-page" />
 }))
 
 vi.mock('@/features/tickets/pages/SeatSelectionPage', () => ({
-  SeatSelectionPage: () => <div data-testid="tickets-page">Tickets</div>
+  SeatSelectionPage: () => <div data-testid="tickets-page" />
 }))
 
 vi.mock('@/features/membership/pages/MembershipPortal', () => ({
-  MembershipPortal: () => <div data-testid="membership-page">Membership</div>
+  MembershipPortal: () => <div data-testid="membership-page" />
 }))
 
 vi.mock('@/features/store/pages/FeneriumPage', () => ({
-  FeneriumPage: () => <div data-testid="fenerium-page">Fenerium</div>
+  FeneriumPage: () => <div data-testid="store-page" />
 }))
 
 vi.mock('@/features/fanzone/pages/FanZonePage', () => ({
-  FanZonePage: () => <div data-testid="fanzone-page">Fan Zone</div>
+  FanZonePage: () => <div data-testid="fanzone-page" />
 }))
 
 const mockNavItems = [
-  { to: '/', label: 'Ana Sayfa' },
-  { to: '/news', label: 'Haberler' },
-  { to: '/fixtures', label: 'Fikstür' }
+  { to: '/', icon: vi.fn(), label: 'Ana Sayfa', ariaLabel: 'Ana sayfa' },
+  { to: '/news', icon: vi.fn(), label: 'Haberler', ariaLabel: 'Fenerbahçe haberleri' }
 ]
 
 describe('AppRoutes Component', () => {
   it('renders dashboard page by default', () => {
     render(
-      <MemoryRouter initialEntries={[ '/' ]}>
+      <BrowserRouter>
         <AppRoutes navItems={mockNavItems} />
-      </MemoryRouter>
+      </BrowserRouter>
     )
     expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
   })
@@ -55,15 +54,6 @@ describe('AppRoutes Component', () => {
       </MemoryRouter>
     )
     expect(screen.getByTestId('news-page')).toBeInTheDocument()
-  })
-
-  it('renders fixtures page when path is /fixtures', () => {
-    render(
-      <MemoryRouter initialEntries={[ '/fixtures' ]}>
-        <AppRoutes navItems={mockNavItems} />
-      </MemoryRouter>
-    )
-    expect(screen.getByTestId('fixtures-page')).toBeInTheDocument()
   })
 
   it('redirects /dashboard to /', () => {

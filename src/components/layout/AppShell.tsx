@@ -45,7 +45,7 @@ export function AppShell() {
   };
 
   return (
-    <div className={`flex h-dvh ${theme === 'dark' ? 'bg-fb-navy-900 text-white' : 'bg-gray-50 text-gray-900'} overflow-hidden`}>
+    <div className={`flex h-dvh ${theme === 'dark' ? 'bg-fb-navy-900 text-white' : 'bg-gray-50 text-gray-900'} overflow-hidden bg-[url('/fenerbahce-logo-bg.jpg')] bg-cover bg-center bg-no-repeat`}>
       {/* ── Desktop Sidebar ── */}
       <aside className="hidden md:flex flex-col w-64 border-r border-[var(--border)] glass-navbar shrink-0">
         {/* Logo */}
