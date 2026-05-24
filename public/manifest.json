@@ -1,0 +1,22 @@
+{
+  "name": "Fenerbahçe Digital Platform",
+  "short_name": "Fenerbahçe",
+  "description": "Resmi Fenerbahçe Spor Kulübü dijital platformu",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#002F6C",
+  "theme_color": "#F4E013",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

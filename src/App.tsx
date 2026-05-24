@@ -1,19 +1,23 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
+import { BrowserRouter } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell'
+import { AppRoutes } from './core/routes/AppRoutes'
+import { navItems } from './components/layout/AppShell'
+import { useNotification } from './hooks/useNotification'
+import { ErrorBoundary } from './components/ui/ErrorBoundary'
+import { NotFoundPage } from './features/not-found/NotFoundPage'
 
 function App() {
-  const location = useLocation()
+  // Bildirim hook'unu başlat
+  useNotification();
 
   return (
-    <AppShell>
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </AnimatePresence>
-    </AppShell>
+    <BrowserRouter>
+      <ErrorBoundary>
+        <AppShell>
+          <AppRoutes navItems={navItems} />
+        </AppShell>
+      </ErrorBoundary>
+    </BrowserRouter>
   )
 }
 

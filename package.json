@@ -10,14 +10,15 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest run --exclude tests/e2e",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "vitest run tests/e2e"
   },
   "dependencies": {
-    "framer-motion": "^11.5.6",
-    "lucide-react": "^0.441.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
+    "framer-motion": "^11.5.6",
+    "lucide-react": "^0.441.0",
     "zustand": "^4.5.5",
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.5.2"
@@ -43,6 +44,7 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/user-event": "^14.0.0",
-    "jsdom": "^23.0.0"
+    "jsdom": "^23.0.0",
+    "@playwright/test": "^1.47.0"
   }
 }
