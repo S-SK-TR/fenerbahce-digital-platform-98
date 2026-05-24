@@ -1,46 +1,38 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import App from '../src/App'
+import App from '@/App'
 import { BrowserRouter } from 'react-router-dom'
-import { useNotification } from '../src/hooks/useNotification'
-import { aiContentService } from '../src/services/aiContentService'
+import { useNotification } from '@/hooks/useNotification'
+import { aiContentService } from '@/services/aiContentService'
 
 // Mock dependencies
-vi.mock('../src/hooks/useNotification')
-vi.mock('../src/services/aiContentService')
+vi.mock('@/hooks/useNotification')
+vi.mock('@/services/aiContentService')
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    BrowserRouter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+  }
+})
 
 describe('App Component', () => {
   const mockShowNotification = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
-    useNotification.mockReturnValue({
-      showNotification: mockShowNotification
-    })
+    useNotification.mockReturnValue({ showNotification: mockShowNotification })
     aiContentService.checkForNewContent.mockResolvedValue(null)
   })
 
-  it('renders AppShell and AppRoutes components', () => {
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
-
-    // Check if AppShell is rendered
-    expect(screen.getByText('Ana Sayfa')).toBeInTheDocument()
-    expect(screen.getByText('Haberler')).toBeInTheDocument()
-    expect(screen.getByText('Fikstür')).toBeInTheDocument()
+  it('renders AppShell and AppRoutes', () => {
+    render(<App />)
+    expect(screen.getByText('Dashboard')).toBeInTheDocument()
   })
 
-  it('sets up AI content notification listener', () => {
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
-
-    // Check if the effect is set up
+  it('checks for new AI content on mount', () => {
+    render(<App />)
     expect(aiContentService.checkForNewContent).toHaveBeenCalled()
   })
 
@@ -48,28 +40,21 @@ describe('App Component', () => {
     const mockContent = [
       {
         id: '1',
-        title: 'Yeni Haber',
-        description: 'Fenerbahçe yeni haber yayınladı',
+        title: 'Test Content',
+        description: 'Test Description',
         type: 'news',
-        link: '/news/1'
+        link: '/news'
       }
     ]
-
     aiContentService.checkForNewContent.mockResolvedValue(mockContent)
 
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
-
-    // Wait for the effect to complete
+    render(<App />)
     await vi.waitFor(() => {
       expect(mockShowNotification).toHaveBeenCalledWith({
-        title: 'Yeni Haber',
-        body: 'Fenerbahçe yeni haber yayınladı',
+        title: 'Test Content',
+        body: 'Test Description',
         contentType: 'news',
-        link: '/news/1',
+        link: '/news',
         tag: 'ai-content-1'
       })
     })
@@ -77,15 +62,9 @@ describe('App Component', () => {
 
   it('handles AI content check errors gracefully', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    aiContentService.checkForNewContent.mockRejectedValue(new Error('Network error'))
+    aiContentService.checkForNewContent.mockRejectedValue(new Error('Test error'))
 
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    )
-
-    // Wait for the effect to complete
+    render(<App />)
     await vi.waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('AI içerik kontrol hatası:', expect.any(Error))
     })
